@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from datetime import datetime
+import time
 
 
 
@@ -71,6 +72,15 @@ def get_time_period():
     '''
     time_period = input('\nWould you like to filter the data by month, day, or not at'
                         ' all? Type "none" for no time filter.\n')
+    
+    
+    if time_period=='month':
+        time_period = int(input('Please choose a month (month must be between 1 and 12)'))
+
+    if time_period=='day':
+        time_period = int(input('Please choose a day (day must be between 1 and 7)'))
+
+        
     return time_period
 
 def get_month():
@@ -99,30 +109,30 @@ def get_day(month):
 
 
 def get_data_file(city_file):
-    
+    global city_data
     city_data = pd.read_csv(city_file)
     
     month=[]
     week_day_int=[]
+    hours=[]
     
     for row in city_data['Start Time']:
         d=datetime.strptime(row,'%Y-%m-%d %H:%M:%S')
         month.append(d.month)
         week_day_int.append(d.isoweekday())
-    
+        hours.append(d.hour)
     
     city_data['Month']=month
     city_data['Week Day']=week_day_int
-    
+    city_data['Hour']=hours
     
     #print(my_data['Month'].count())
     #print('January count {}'.format(my_data.loc[my_data['Month']==1].count()))
     #print(my_data.head(10))
     #my_data.info(memory_usage='deep')'''
-    return city_data
 
 
-def popular_month(city_file, time_period):
+def popular_month():
     '''TODO: fill out docstring with description, arguments, and return values.
     Question: What is the most popular month for start time?
     '''
@@ -132,24 +142,23 @@ def popular_month(city_file, time_period):
     #nmonth_list=[1,2,3,4,5,6,7,8,9,10,11,12]
     month_count_list=[]
     
-    city=get_data_file(city_file)
+    
     popular_month=1;
     popular_month_trip_count=0;
     for index in range(1,13):
-        month_count_list.append(city['Month'].loc[city['Month']==index].count())
+        month_count_list.append(city_data['Month'].loc[city_data['Month']==index].count())
         if popular_month_trip_count<month_count_list[index-1]:
             popular_month_trip_count=month_count_list[index-1]
             popular_month=index
     
-
-    print(month_count_list)
+    
     plt.plot(range(1,13),month_count_list)
     plt.xlabel('Months')
     plt.ylabel('Count of Hiring Bike')
-    plt.title('Monthly Counts ofBike Sharing')
+    plt.title('Monthly Counts of Bike Sharing')
     plt.show()
     
-    return popular_month
+    return (popular_month,month_count_list)
     
     
     
@@ -157,22 +166,68 @@ def popular_month(city_file, time_period):
     
 
 
-def popular_day(city_file, time_period):
+def popular_day():
     '''TODO: fill out docstring with description, arguments, and return values.
     Question: What is the most popular day of week (Monday, Tuesday, etc.) for start time?
     '''
     # TODO: complete function
+    days_of_week=[]
+    
+    
+    popular_day=1;
+    popular_day_trip_count=0;
+    for index in range(1,8):
+        days_of_week.append(city_data['Week Day'].loc[city_data['Week Day']==index].count())
+        if popular_day_trip_count<days_of_week[index-1]:
+            popular_day_trip_count=days_of_week[index-1]
+            popular_day=index
+    
+    
+    plt.plot(range(1,8),days_of_week)
+    plt.xlabel('Days of Week')
+    plt.ylabel('Count of Hiring Bike')
+    plt.title('Counts of Bike Sharing (Weekdays)')
+    plt.show()
+    
+    return (popular_day,popular_day_trip_count)
+
+def popular_hour():
+    
+    hours=[]
+    
+    
+    popular_hour=0;
+    popular_hour_trip_count=0;
+    for index in range(0,24):
+        hours.append(city_data['Hour'].loc[city_data['Hour']==index].count())
+        if popular_hour_trip_count<hours[index-1]:
+            popular_hour_trip_count=hours[index-1]
+            popular_hour=hours
+    
+    
+    plt.plot(range(0,24),hours)
+    plt.xlabel('Hour of Day')
+    plt.ylabel('Count of Hiring Bike')
+    plt.title('Counts of Bike Sharing (Hours of Day)')
+    plt.show()
+    
+    return (popular_hour,popular_hour_trip_count)
+    
+    
 
 
 def statistics():
     print('\nHello! Let\'s explore some US bikeshare data!\n')
     
-    city=get_city()
+    city_name=get_city()
     
-    popular_month(city,'')
     # Filter by time period (month, day, none)
     time_period = get_time_period()
-
+    print('Fetching Data...')
+    start_time = time.time()
+    get_data_file(city_name)
+    print("Data fetching complated in %s seconds." % (time.time() - start_time))
+    
     print('Calculating the first statistic...')
     
     
@@ -181,7 +236,7 @@ def statistics():
         start_time = time.time()
         
         #TODO: call popular_month function and print the results
-        
+        popular_month()
         print("That took %s seconds." % (time.time() - start_time))
         print("Calculating the next statistic...")
 
@@ -190,9 +245,19 @@ def statistics():
         start_time = time.time()
         
         # TODO: call popular_day function and print the results
-        
+        popular_day()
         print("That took %s seconds." % (time.time() - start_time))
-        print("Calculating the next statistic...")    
+        print("Calculating the next statistic...")  
+
+    start_time = time.time()
+
+    # What is the most popular hour of day for start time?
+    # TODO: call popular_hour function and print the results
+    popular_hour()
+    print("That took %s seconds." % (time.time() - start_time))
+    print("Calculating the next statistic...")
+    start_time = time.time()
+
 
 
 if __name__ == "__main__":
