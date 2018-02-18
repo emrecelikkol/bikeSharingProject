@@ -5,7 +5,7 @@ Created on Tue Feb 13 08:30:44 2018
 @author: emre
 """
 
-DATA_FILE_DIRECTORY="./data/"
+DATA_FILE_DIRECTORY="../data/"
 availableCities={}
 
 
@@ -16,7 +16,7 @@ def get_city_filenames():
             none
         Returns:
             none
-    '''   
+    '''
     import os
 
     files=os.listdir(DATA_FILE_DIRECTORY) 
@@ -42,8 +42,6 @@ def get_city():
     if availableCities=={}:
         print('Couldn\'t find any city please check {} folder!'.format(DATA_FILE_DIRECTORY))
         return ''
-    
-    print('\nHello! Let\'s explore some US bikeshare data!\n')
     
     
     
@@ -94,14 +92,95 @@ def get_day(month):
     return day
 
 
-def getDataFile():
+def get_data_file(city_file):
     import pandas as pd
-    my_data = pd.read_csv(get_city())
-    print(my_data.head(10))
+    my_data = pd.read_csv(city_file)
+    
+    del pd
+    
+    from datetime import datetime
+    
+    month=[]
+    week_day_int=[]
+    
+    for row in my_data['Start Time']:
+        d=datetime.strptime(row,'%Y-%m-%d %H:%M:%S')
+        month.append(d.month)
+        week_day_int.append(d.isoweekday())
+    
+    
+    my_data['Month']=month
+    my_data['Week Day']=week_day_int
+    
+    
+    #print(my_data['Month'].count())
+    #print('January count {}'.format(my_data.loc[my_data['Month']==1].count()))
+    #print(my_data.head(10))
+    #my_data.info(memory_usage='deep')'''
+    return my_data
 
 
-while input('do you wanna look cities again y/n').lower()=='y':
-    getDataFile()
-##chicagoprint(get_city())
+def popular_month(city_file, time_period):
+    '''TODO: fill out docstring with description, arguments, and return values.
+    Question: What is the most popular month for start time?
+    '''
+    # TODO: complete function
+    
+    #month_count_list={'January':0,'February':0,'March':0,'April':0,'May':0,'June':0,'July':0,'August':0,'October':0,'September':0,'November':0,'December':0}
+    
+    month_count_list={}
+    
+    city=get_data_file(city_file)
+    
+    for index in range(1,13):
+        month_count_list[index]=city['Month'].loc[city['Month']==index].count()
+        
+    print(month_count_list)
+    
+    
+    
+    
+    
     
 
+
+def popular_day(city_file, time_period):
+    '''TODO: fill out docstring with description, arguments, and return values.
+    Question: What is the most popular day of week (Monday, Tuesday, etc.) for start time?
+    '''
+    # TODO: complete function
+
+
+def statistics():
+    print('\nHello! Let\'s explore some US bikeshare data!\n')
+    
+    city=get_city()
+    
+    popular_month(city,'')
+    # Filter by time period (month, day, none)
+    time_period = get_time_period()
+
+    print('Calculating the first statistic...')
+    
+    
+    # What is the most popular month for start time?
+    if time_period == 'none':
+        start_time = time.time()
+        
+        #TODO: call popular_month function and print the results
+        
+        print("That took %s seconds." % (time.time() - start_time))
+        print("Calculating the next statistic...")
+
+    # What is the most popular day of week (Monday, Tuesday, etc.) for start time?
+    if time_period == 'none' or time_period == 'month':
+        start_time = time.time()
+        
+        # TODO: call popular_day function and print the results
+        
+        print("That took %s seconds." % (time.time() - start_time))
+        print("Calculating the next statistic...")    
+
+
+if __name__ == "__main__":
+	statistics()
