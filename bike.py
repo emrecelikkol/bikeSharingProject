@@ -4,10 +4,16 @@ Created on Tue Feb 13 08:30:44 2018
 
 @author: emre
 """
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from datetime import datetime
+
+
 
 DATA_FILE_DIRECTORY="../data/"
 availableCities={}
-
+city_data=pd.DataFrame()
 
 def get_city_filenames():
     
@@ -93,31 +99,27 @@ def get_day(month):
 
 
 def get_data_file(city_file):
-    import pandas as pd
-    my_data = pd.read_csv(city_file)
     
-    del pd
-    
-    from datetime import datetime
+    city_data = pd.read_csv(city_file)
     
     month=[]
     week_day_int=[]
     
-    for row in my_data['Start Time']:
+    for row in city_data['Start Time']:
         d=datetime.strptime(row,'%Y-%m-%d %H:%M:%S')
         month.append(d.month)
         week_day_int.append(d.isoweekday())
     
     
-    my_data['Month']=month
-    my_data['Week Day']=week_day_int
+    city_data['Month']=month
+    city_data['Week Day']=week_day_int
     
     
     #print(my_data['Month'].count())
     #print('January count {}'.format(my_data.loc[my_data['Month']==1].count()))
     #print(my_data.head(10))
     #my_data.info(memory_usage='deep')'''
-    return my_data
+    return city_data
 
 
 def popular_month(city_file, time_period):
@@ -127,16 +129,27 @@ def popular_month(city_file, time_period):
     # TODO: complete function
     
     #month_count_list={'January':0,'February':0,'March':0,'April':0,'May':0,'June':0,'July':0,'August':0,'October':0,'September':0,'November':0,'December':0}
-    
-    month_count_list={}
+    #nmonth_list=[1,2,3,4,5,6,7,8,9,10,11,12]
+    month_count_list=[]
     
     city=get_data_file(city_file)
-    
+    popular_month=1;
+    popular_month_trip_count=0;
     for index in range(1,13):
-        month_count_list[index]=city['Month'].loc[city['Month']==index].count()
-        
-    print(month_count_list)
+        month_count_list.append(city['Month'].loc[city['Month']==index].count())
+        if popular_month_trip_count<month_count_list[index-1]:
+            popular_month_trip_count=month_count_list[index-1]
+            popular_month=index
     
+
+    print(month_count_list)
+    plt.plot(range(1,13),month_count_list)
+    plt.xlabel('Months')
+    plt.ylabel('Count of Hiring Bike')
+    plt.title('Monthly Counts ofBike Sharing')
+    plt.show()
+    
+    return popular_month
     
     
     
