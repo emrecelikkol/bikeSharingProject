@@ -15,6 +15,7 @@ import time
 DATA_FILE_DIRECTORY="../data/"
 availableCities={}
 city_data=pd.DataFrame()
+graphics_visible=False
 
 def get_city_filenames():
     
@@ -75,13 +76,11 @@ def get_time_period():
     
     
     if time_period=='month':
-        time_period = int(input('Please choose a month (month must be between 1 and 12)'))
-
-    if time_period=='day':
-        time_period = int(input('Please choose a day (day must be between 1 and 7)'))
-
-        
-    return time_period
+        month = get_month()
+        day = get_day(month)        
+        return (month,day)
+    
+    return(0,0)
 
 def get_month():
     '''Asks the user for a month and returns the specified month.
@@ -91,9 +90,15 @@ def get_month():
     Returns:
         TODO: fill out return type and description (see get_city for an example)
     '''
+    
+    month_count_list={'January':1,'February':2,'March':3,'April':4,'May':5,'June':6,'July':7,'August':8,'October':9,'September':10,'November':11,'December':12}
     month = input('\nWhich month? January, February, March, April, May, or June?\n')
     # TODO: handle raw input and complete function
-    return month
+    
+    if month=='none':
+        return 0
+    
+    return month_count_list[month]
 
 def get_day(month):
     '''Asks the user for a day and returns the specified day.
@@ -103,29 +108,37 @@ def get_day(month):
     Returns:
         TODO: fill out return type and description (see get_city for an example)
     '''
-    day = input('\nWhich day? Please type your response as an integer.\n')
+    day = input('\nWhich day? Please type your response as an integer.Type "none" for no time filter\n')
     # TODO: handle raw input and complete function
-    return day
+    if day=='none':
+        return 0
+    return int(day)
 
 
-def get_data_file(city_file):
+def get_data_file(city_file,filter_month,filter_day):
     global city_data
     city_data = pd.read_csv(city_file)
     
     month=[]
     week_day_int=[]
     hours=[]
-    
+    days=[]
     for row in city_data['Start Time']:
         d=datetime.strptime(row,'%Y-%m-%d %H:%M:%S')
         month.append(d.month)
         week_day_int.append(d.isoweekday())
         hours.append(d.hour)
-    
+        days.append(d.day)
     city_data['Month']=month
     city_data['Week Day']=week_day_int
     city_data['Hour']=hours
+    city_data['Day']=days
     
+    if filter_month>0 and filter_month<13:
+        city_data=city_data.loc[city_data['Month']==filter_month]
+        
+    if filter_day>0 and filter_day<32:
+        city_data=city_data.loc[city_data['Day']==filter_day]
     #print(my_data['Month'].count())
     #print('January count {}'.format(my_data.loc[my_data['Month']==1].count()))
     #print(my_data.head(10))
@@ -145,6 +158,7 @@ def popular_month():
     
     popular_month=1;
     popular_month_trip_count=0;
+    
     for index in range(1,13):
         month_count_list.append(city_data['Month'].loc[city_data['Month']==index].count())
         if popular_month_trip_count<month_count_list[index-1]:
@@ -161,6 +175,9 @@ def popular_month():
     return (popular_month,month_count_list)
     
     
+def trip_duration():
+    print('Total trip duration is {} seconds'.format(city_data['Trip Duration'].sum()))
+    print('Average trip duration is {} seconds'.format(city_data['Trip Duration'].mean()))
     
     
     
@@ -213,26 +230,44 @@ def popular_hour():
     
     return (popular_hour,popular_hour_trip_count)
     
+def popular_stations():
+    start_station_df=city_data.groupby(['Start Station']).agg({'Start Time':'count'})
+    end_station_df=city_data.groupby(['End Station']).agg({'Start Time':'count'})
     
+    popular_start_station=start_station_df.loc[start_station_df['Start Time']==start_station_df['Start Time'].max()]
+    
+    popular_end_station=end_station_df.loc[end_station_df['Start Time']==end_station_df['Start Time'].max()]
+    
+    print('Popular Start Station :{} \nTotal Trip Count :{}'.format(popular_start_station))
+    print('Popular End Station   :{} \nTotal Trip Count :{}'.format(popular_end_station))
+    
+    '''
+    to head map analyse
+    
+    import seaborn as sns
+    test=city_data.groupby(['Start Station','Day']).agg({'Start Time':'count'})
+    df_wide=test.pivot_table( index='Start Station', columns='Day', values='Start Time' )
+    sns.heatmap( df_wide )
+    '''
 
 
 def statistics():
     print('\nHello! Let\'s explore some US bikeshare data!\n')
-    
+    graphics_visible=input('Would you like to analyse with graphics (y/n)')=='y'
     city_name=get_city()
     
     # Filter by time period (month, day, none)
-    time_period = get_time_period()
+    month,day = get_time_period()
     print('Fetching Data...')
     start_time = time.time()
-    get_data_file(city_name)
+    get_data_file(city_name,month,day)
     print("Data fetching complated in %s seconds." % (time.time() - start_time))
     
     print('Calculating the first statistic...')
     
     
     # What is the most popular month for start time?
-    if time_period == 'none':
+    if month == 0:
         start_time = time.time()
         
         #TODO: call popular_month function and print the results
@@ -241,7 +276,7 @@ def statistics():
         print("Calculating the next statistic...")
 
     # What is the most popular day of week (Monday, Tuesday, etc.) for start time?
-    if time_period == 'none' or time_period == 'month':
+    if day == 0 or month == 0:
         start_time = time.time()
         
         # TODO: call popular_day function and print the results
@@ -258,6 +293,21 @@ def statistics():
     print("Calculating the next statistic...")
     start_time = time.time()
 
+
+    # What is the total trip duration and average trip duration?
+    # TODO: call trip_duration function and print the results
+    trip_duration()
+    
+    
+    print("That took %s seconds." % (time.time() - start_time))    
+    print("Calculating the next statistic...")
+    start_time = time.time()
+
+    # What is the most popular start station and most popular end station?
+    # TODO: call popular_stations function and print the results
+    popular_stations()
+    popular_stations()
+    print("That took %s seconds." % (time.time() - start_time))
 
 
 if __name__ == "__main__":
