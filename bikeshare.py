@@ -11,11 +11,21 @@ from datetime import datetime
 import time
 
 
-
-DATA_FILE_DIRECTORY="../data/"
+DATA_FILE_DIRECTORY="./"
 availableCities={}
 city_data=pd.DataFrame()
 graphics_visible=False
+
+
+def init():
+    global DATA_FILE_DIRECTORY
+    global availableCities
+    global city_data
+    global graphics_visible
+    DATA_FILE_DIRECTORY="../data/"
+    availableCities={}
+    city_data=pd.DataFrame()
+    graphics_visible=False
 
 def get_city_filenames():
     
@@ -231,27 +241,105 @@ def popular_hour():
     return (popular_hour,popular_hour_trip_count)
     
 def popular_stations():
-    start_station_df=city_data.groupby(['Start Station']).agg({'Start Time':'count'})
-    end_station_df=city_data.groupby(['End Station']).agg({'Start Time':'count'})
+    start_station_df=city_data.groupby('Start Station').agg({'Start Time':'count'})
+    end_station_df=city_data.groupby('End Station').agg({'Start Time':'count'})
     
     popular_start_station=start_station_df.loc[start_station_df['Start Time']==start_station_df['Start Time'].max()]
     
     popular_end_station=end_station_df.loc[end_station_df['Start Time']==end_station_df['Start Time'].max()]
     
-    print('Popular Start Station :{} \nTotal Trip Count :{}'.format(popular_start_station))
-    print('Popular End Station   :{} \nTotal Trip Count :{}'.format(popular_end_station))
+    print('Popular Start Station :{} \nTotal Start Station Trip Count :{}'.format(popular_start_station.index[0],popular_start_station['Start Time'][0]))
+    print('Popular End Station   :{} \nTotal End Station Trip Count :{}'.format(popular_end_station.index[0],popular_end_station['Start Time'][0]))
     
     '''
-    to head map analyse
-    
+    #to head map analyse
+     
     import seaborn as sns
     test=city_data.groupby(['Start Station','Day']).agg({'Start Time':'count'})
     df_wide=test.pivot_table( index='Start Station', columns='Day', values='Start Time' )
     sns.heatmap( df_wide )
     '''
+    
+def popular_trip():
+    '''TODO: fill out docstring with description, arguments, and return values.
+    Question: What is the most popular trip?
+    '''
+    # TODO: complete function
+    trips_df=city_data.groupby(['Start Station','End Station']).agg({'Start Time':'count'})
+    
+    trip_count_max=trips_df['Start Time'].max()
+    
+    popular_trip=trips_df.loc[trips_df['Start Time']==trip_count_max]
+    
+    print('-----------------------------POPULAR TRIP-----------------------------')
+    print('Start Station    :{}\nEnd Station      :{}\nTotal Trip Count :{}'.format(popular_trip.index[0][0],popular_trip.index[0][1],popular_trip['Start Time'][0]))
+    print('\n----------------------------------------------------------------------\n')
 
 
+def users():
+    '''TODO: fill out docstring with description, arguments, and return values.
+    Question: What are the counts of each user type?
+    '''
+    # TODO: complete function
+    trips_df=city_data.groupby('User Type').agg({'Start Time':'count'})
+    
+    print('-----------------------------USER TYPE--------------------------------')
+    for i in range(0,trips_df.count()[0]):
+        print('User Type :{} \t| Count :{}'.format(trips_df.index[i],int(trips_df['Start Time'][i])))
+        
+    print('\n----------------------------------------------------------------------\n')
+
+def gender():
+    '''TODO: fill out docstring with description, arguments, and return values.
+    Question: What are the counts of gender?
+    '''
+    # TODO: complete function
+    trips_df=city_data.groupby('Gender').agg({'Start Time':'count'})
+    
+    print('-----------------------------GENDER-----------------------------------')
+    for i in range(0,trips_df.count()[0]):
+        print('User Type :{} \t| Count :{}'.format(trips_df.index[i],int(trips_df['Start Time'][i])))
+        
+    print('\n----------------------------------------------------------------------\n')
+
+def birth_years():
+    '''TODO: fill out docstring with description, arguments, and return values.
+    Question: What are the earliest (i.e. oldest user), most recent (i.e. youngest user),
+    and most popular birth years?
+    '''
+    # TODO: complete function
+    
+    print('-----------------------------BIRTH YEARS------------------------------')
+    
+    print('The Maximum Birth Year: {}'.format(int(city_data['Birth Year'].max())))
+    print('The Minimum Birth Year: {}'.format(int(city_data['Birth Year'].min())))
+    print('The Average Birth Year: {}'.format(int(city_data['Birth Year'].mean())))
+    
+    print('\n----------------------------------------------------------------------\n')
+    
+def display_data():
+    '''Displays five lines of data if the user specifies that they would like to.
+    After displaying five lines, ask the user if they would like to see five more,
+    continuing asking until they say stop.
+
+    Args:
+        none.
+    Returns:
+        TODO: fill out return type and description (see get_city for an example)
+    '''
+    print('-----------------------------DISPLAY DATA-----------------------------')
+    for i in range(0,city_data.count()[0],5):
+        print(city_data[i:i+5])
+        display = input('\nWould you like to view individual trip data?'
+                    'Type \'yes\' or \'no\'.\n')
+        if display=='no':
+            break
+        
+    print('\n----------------------------------------------------------------------\n')
+   
+    
 def statistics():
+    global graphics_visible
     print('\nHello! Let\'s explore some US bikeshare data!\n')
     graphics_visible=input('Would you like to analyse with graphics (y/n)')=='y'
     city_name=get_city()
@@ -306,9 +394,45 @@ def statistics():
     # What is the most popular start station and most popular end station?
     # TODO: call popular_stations function and print the results
     popular_stations()
-    popular_stations()
-    print("That took %s seconds." % (time.time() - start_time))
 
+    print("That took %s seconds." % (time.time() - start_time))
+    print("Calculating the next statistic...")
+    start_time = time.time()
+
+    # What is the most popular trip?
+    # TODO: call popular_trip function and print the results
+    popular_trip()
+    print("That took %s seconds." % (time.time() - start_time))
+    
+    print("Calculating the next statistic...")
+    start_time = time.time()
+
+    # What are the counts of each user type?
+    # TODO: call users function and print the results
+    users()
+    print("That took %s seconds." % (time.time() - start_time))
+    print("Calculating the next statistic...")
+    start_time = time.time()
+
+    # What are the counts of gender?
+    # TODO: call gender function and print the results
+    gender()
+    print("That took %s seconds." % (time.time() - start_time))
+    print("Calculating the next statistic...")
+    start_time = time.time()
+
+    # What are the earliest (i.e. oldest user), most recent (i.e. youngest user), and
+    # most popular birth years?
+    # TODO: call birth_years function and print the results
+    birth_years()
+    print("That took %s seconds." % (time.time() - start_time))
+    
+    # Display five lines of data at a time if user specifies that they would like to
+    display_data()
+    restart = input('\nWould you like to restart? Type \'yes\' or \'no\'.\n')
+    
+    return restart.lower() == 'yes'
 
 if __name__ == "__main__":
-	statistics()
+    while statistics():
+        init()  
