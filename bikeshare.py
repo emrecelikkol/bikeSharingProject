@@ -5,7 +5,6 @@ Created on Tue Feb 13 08:30:44 2018
 @author: emre
 """
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from datetime import datetime
 import time
@@ -22,7 +21,7 @@ def init():
     global availableCities
     global city_data
     global graphics_visible
-    DATA_FILE_DIRECTORY="../data/"
+    DATA_FILE_DIRECTORY="./"
     availableCities={}
     city_data=pd.DataFrame()
     graphics_visible=False
@@ -41,7 +40,7 @@ def get_city_filenames():
 
     for file in files:
         if file.split('.')[-1] == 'csv':
-            availableCities[file.split('.')[0].replace('_',' ')]=file
+            availableCities[file.split('.')[0].replace('_',' ').lower()]=file
 
 
 def get_city():
@@ -101,8 +100,8 @@ def get_month():
         TODO: fill out return type and description (see get_city for an example)
     '''
     
-    month_count_list={'January':1,'February':2,'March':3,'April':4,'May':5,'June':6,'July':7,'August':8,'October':9,'September':10,'November':11,'December':12}
-    month = input('\nWhich month? January, February, March, April, May, or June?\n')
+    month_count_list={'january':1,'february':2,'march':3,'april':4,'may':5,'june':6,'july':7,'august':8,'october':9,'september':10,'november':11,'december':12}
+    month = input('\nWhich month? January, February, March, April, May, or June?\n').lower();
     # TODO: handle raw input and complete function
     
     if month=='none':
@@ -163,6 +162,9 @@ def popular_month():
     
     #month_count_list={'January':0,'February':0,'March':0,'April':0,'May':0,'June':0,'July':0,'August':0,'October':0,'September':0,'November':0,'December':0}
     #nmonth_list=[1,2,3,4,5,6,7,8,9,10,11,12]
+    print('-----------------------------POPULAR MONTH-----------------------------')
+    start_time = time.time()
+    
     month_count_list=[]
     
     
@@ -182,13 +184,18 @@ def popular_month():
     plt.title('Monthly Counts of Bike Sharing')
     plt.show()
     
-    return (popular_month,month_count_list)
     
+    print('Popular Month:{} \nTrip Count:{}'.format(popular_month,month_count_list))   
+    print("That took %s seconds." % (time.time() - start_time))
+    print('\n----------------------------------------------------------------------\n')
     
 def trip_duration():
+    print('-----------------------------TRIP DURATIONS---------------------------')
+    start_time = time.time()
     print('Total trip duration is {} seconds'.format(city_data['Trip Duration'].sum()))
     print('Average trip duration is {} seconds'.format(city_data['Trip Duration'].mean()))
-    
+    print("That took %s seconds." % (time.time() - start_time))
+    print('\n----------------------------------------------------------------------\n')
     
     
 
@@ -198,6 +205,8 @@ def popular_day():
     Question: What is the most popular day of week (Monday, Tuesday, etc.) for start time?
     '''
     # TODO: complete function
+    print('-----------------------------POPULAR DAY------------------------------')
+    start_time = time.time()
     days_of_week=[]
     
     
@@ -216,10 +225,17 @@ def popular_day():
     plt.title('Counts of Bike Sharing (Weekdays)')
     plt.show()
     
-    return (popular_day,popular_day_trip_count)
+    print('Popular Weekday:{} \nTrip Count:{}'.format(popular_day,popular_day_trip_count))   
+    print("That took %s seconds." % (time.time() - start_time))
+    print('\n----------------------------------------------------------------------\n')
+    
+    
+    
 
 def popular_hour():
-    
+      
+    print('-----------------------------POPULAR HOUR------------------------------')
+    start_time = time.time()
     hours=[]
     
     
@@ -227,9 +243,9 @@ def popular_hour():
     popular_hour_trip_count=0;
     for index in range(0,24):
         hours.append(city_data['Hour'].loc[city_data['Hour']==index].count())
-        if popular_hour_trip_count<hours[index-1]:
-            popular_hour_trip_count=hours[index-1]
-            popular_hour=hours
+        if popular_hour_trip_count<hours[index]:
+            popular_hour_trip_count=hours[index]
+            popular_hour=index
     
     
     plt.plot(range(0,24),hours)
@@ -238,19 +254,22 @@ def popular_hour():
     plt.title('Counts of Bike Sharing (Hours of Day)')
     plt.show()
     
-    return (popular_hour,popular_hour_trip_count)
+    print('Popular Hour:{} \nTrip Count:{}'.format(popular_hour,popular_hour_trip_count))   
+    print("That took %s seconds." % (time.time() - start_time))
+    print('\n----------------------------------------------------------------------\n')
+
     
 def popular_stations():
+    
+    print('-----------------------------POPULAR STATIONS------------------------------')
+    start_time = time.time()
     start_station_df=city_data.groupby('Start Station').agg({'Start Time':'count'})
     end_station_df=city_data.groupby('End Station').agg({'Start Time':'count'})
     
     popular_start_station=start_station_df.loc[start_station_df['Start Time']==start_station_df['Start Time'].max()]
     
     popular_end_station=end_station_df.loc[end_station_df['Start Time']==end_station_df['Start Time'].max()]
-    
-    print('Popular Start Station :{} \nTotal Start Station Trip Count :{}'.format(popular_start_station.index[0],popular_start_station['Start Time'][0]))
-    print('Popular End Station   :{} \nTotal End Station Trip Count :{}'.format(popular_end_station.index[0],popular_end_station['Start Time'][0]))
-    
+      
     '''
     #to head map analyse
      
@@ -259,12 +278,18 @@ def popular_stations():
     df_wide=test.pivot_table( index='Start Station', columns='Day', values='Start Time' )
     sns.heatmap( df_wide )
     '''
+    print('Popular Start Station :{} \nTotal Start Station Trip Count :{}'.format(popular_start_station.index[0],popular_start_station['Start Time'][0]))
+    print('Popular End Station   :{} \nTotal End Station Trip Count :{}'.format(popular_end_station.index[0],popular_end_station['Start Time'][0]))
+    print("That took %s seconds." % (time.time() - start_time))
+    print('\n----------------------------------------------------------------------\n')
+
     
 def popular_trip():
     '''TODO: fill out docstring with description, arguments, and return values.
     Question: What is the most popular trip?
     '''
     # TODO: complete function
+    start_time = time.time()
     trips_df=city_data.groupby(['Start Station','End Station']).agg({'Start Time':'count'})
     
     trip_count_max=trips_df['Start Time'].max()
@@ -273,6 +298,7 @@ def popular_trip():
     
     print('-----------------------------POPULAR TRIP-----------------------------')
     print('Start Station    :{}\nEnd Station      :{}\nTotal Trip Count :{}'.format(popular_trip.index[0][0],popular_trip.index[0][1],popular_trip['Start Time'][0]))
+    print("That took %s seconds." % (time.time() - start_time))
     print('\n----------------------------------------------------------------------\n')
 
 
@@ -280,26 +306,28 @@ def users():
     '''TODO: fill out docstring with description, arguments, and return values.
     Question: What are the counts of each user type?
     '''
-    # TODO: complete function
+    start_time = time.time()
     trips_df=city_data.groupby('User Type').agg({'Start Time':'count'})
     
     print('-----------------------------USER TYPE--------------------------------')
     for i in range(0,trips_df.count()[0]):
         print('User Type :{} \t| Count :{}'.format(trips_df.index[i],int(trips_df['Start Time'][i])))
-        
+    
+    print("That took %s seconds." % (time.time() - start_time))
     print('\n----------------------------------------------------------------------\n')
 
 def gender():
     '''TODO: fill out docstring with description, arguments, and return values.
     Question: What are the counts of gender?
     '''
-    # TODO: complete function
+    start_time = time.time()
     trips_df=city_data.groupby('Gender').agg({'Start Time':'count'})
     
     print('-----------------------------GENDER-----------------------------------')
     for i in range(0,trips_df.count()[0]):
         print('User Type :{} \t| Count :{}'.format(trips_df.index[i],int(trips_df['Start Time'][i])))
-        
+    
+    print("That took %s seconds." % (time.time() - start_time))    
     print('\n----------------------------------------------------------------------\n')
 
 def birth_years():
@@ -308,13 +336,13 @@ def birth_years():
     and most popular birth years?
     '''
     # TODO: complete function
-    
+    start_time = time.time()
     print('-----------------------------BIRTH YEARS------------------------------')
     
     print('The Maximum Birth Year: {}'.format(int(city_data['Birth Year'].max())))
     print('The Minimum Birth Year: {}'.format(int(city_data['Birth Year'].min())))
     print('The Average Birth Year: {}'.format(int(city_data['Birth Year'].mean())))
-    
+    print("That took %s seconds." % (time.time() - start_time))
     print('\n----------------------------------------------------------------------\n')
     
 def display_data():
@@ -327,6 +355,7 @@ def display_data():
     Returns:
         TODO: fill out return type and description (see get_city for an example)
     '''
+    start_time = time.time()
     print('-----------------------------DISPLAY DATA-----------------------------')
     for i in range(0,city_data.count()[0],5):
         print(city_data[i:i+5])
@@ -334,7 +363,7 @@ def display_data():
                     'Type \'yes\' or \'no\'.\n')
         if display=='no':
             break
-        
+    print("That took %s seconds." % (time.time() - start_time))    
     print('\n----------------------------------------------------------------------\n')
    
     
@@ -356,76 +385,55 @@ def statistics():
     
     # What is the most popular month for start time?
     if month == 0:
-        start_time = time.time()
-        
+
         #TODO: call popular_month function and print the results
         popular_month()
-        print("That took %s seconds." % (time.time() - start_time))
         print("Calculating the next statistic...")
 
     # What is the most popular day of week (Monday, Tuesday, etc.) for start time?
     if day == 0 or month == 0:
-        start_time = time.time()
-        
+       
         # TODO: call popular_day function and print the results
         popular_day()
-        print("That took %s seconds." % (time.time() - start_time))
         print("Calculating the next statistic...")  
-
-    start_time = time.time()
 
     # What is the most popular hour of day for start time?
     # TODO: call popular_hour function and print the results
     popular_hour()
-    print("That took %s seconds." % (time.time() - start_time))
     print("Calculating the next statistic...")
-    start_time = time.time()
-
 
     # What is the total trip duration and average trip duration?
     # TODO: call trip_duration function and print the results
     trip_duration()
-    
-    
-    print("That took %s seconds." % (time.time() - start_time))    
+        
     print("Calculating the next statistic...")
-    start_time = time.time()
 
     # What is the most popular start station and most popular end station?
     # TODO: call popular_stations function and print the results
     popular_stations()
 
-    print("That took %s seconds." % (time.time() - start_time))
     print("Calculating the next statistic...")
-    start_time = time.time()
 
     # What is the most popular trip?
     # TODO: call popular_trip function and print the results
     popular_trip()
-    print("That took %s seconds." % (time.time() - start_time))
     
     print("Calculating the next statistic...")
-    start_time = time.time()
 
     # What are the counts of each user type?
     # TODO: call users function and print the results
     users()
-    print("That took %s seconds." % (time.time() - start_time))
     print("Calculating the next statistic...")
-    start_time = time.time()
 
     # What are the counts of gender?
     # TODO: call gender function and print the results
     gender()
-    print("That took %s seconds." % (time.time() - start_time))
     print("Calculating the next statistic...")
-    start_time = time.time()
 
     # What are the earliest (i.e. oldest user), most recent (i.e. youngest user), and
     # most popular birth years?
     # TODO: call birth_years function and print the results
     birth_years()
-    print("That took %s seconds." % (time.time() - start_time))
     
     # Display five lines of data at a time if user specifies that they would like to
     display_data()
