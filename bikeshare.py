@@ -159,7 +159,7 @@ def popular_month():
     Question: What is the most popular month for start time?
     '''
     # TODO: complete function
-    
+    global graphics_visible
     #month_count_list={'January':0,'February':0,'March':0,'April':0,'May':0,'June':0,'July':0,'August':0,'October':0,'September':0,'November':0,'December':0}
     #nmonth_list=[1,2,3,4,5,6,7,8,9,10,11,12]
     print('-----------------------------POPULAR MONTH-----------------------------')
@@ -177,13 +177,13 @@ def popular_month():
             popular_month_trip_count=month_count_list[index-1]
             popular_month=index
     
-    
-    plt.plot(range(1,13),month_count_list)
-    plt.xlabel('Months')
-    plt.ylabel('Count of Hiring Bike')
-    plt.title('Monthly Counts of Bike Sharing')
-    plt.show()
-    
+    if graphics_visible:
+        plt.plot(range(1,13),month_count_list)
+        plt.xlabel('Months')
+        plt.ylabel('Count of Hiring Bike')
+        plt.title('Monthly Counts of Bike Sharing')
+        plt.show()
+        
     
     print('Popular Month:{} \nTrip Count:{}'.format(popular_month,month_count_list))   
     print("That took %s seconds." % (time.time() - start_time))
@@ -204,7 +204,7 @@ def popular_day():
     '''TODO: fill out docstring with description, arguments, and return values.
     Question: What is the most popular day of week (Monday, Tuesday, etc.) for start time?
     '''
-    # TODO: complete function
+    global graphics_visible
     print('-----------------------------POPULAR DAY------------------------------')
     start_time = time.time()
     days_of_week=[]
@@ -218,12 +218,12 @@ def popular_day():
             popular_day_trip_count=days_of_week[index-1]
             popular_day=index
     
-    
-    plt.plot(range(1,8),days_of_week)
-    plt.xlabel('Days of Week')
-    plt.ylabel('Count of Hiring Bike')
-    plt.title('Counts of Bike Sharing (Weekdays)')
-    plt.show()
+    if graphics_visible:
+        plt.plot(range(1,8),days_of_week)
+        plt.xlabel('Days of Week')
+        plt.ylabel('Count of Hiring Bike')
+        plt.title('Counts of Bike Sharing (Weekdays)')
+        plt.show()
     
     print('Popular Weekday:{} \nTrip Count:{}'.format(popular_day,popular_day_trip_count))   
     print("That took %s seconds." % (time.time() - start_time))
@@ -233,7 +233,8 @@ def popular_day():
     
 
 def popular_hour():
-      
+    
+    global graphics_visible
     print('-----------------------------POPULAR HOUR------------------------------')
     start_time = time.time()
     hours=[]
@@ -247,12 +248,12 @@ def popular_hour():
             popular_hour_trip_count=hours[index]
             popular_hour=index
     
-    
-    plt.plot(range(0,24),hours)
-    plt.xlabel('Hour of Day')
-    plt.ylabel('Count of Hiring Bike')
-    plt.title('Counts of Bike Sharing (Hours of Day)')
-    plt.show()
+    if graphics_visible:
+        plt.plot(range(0,24),hours)
+        plt.xlabel('Hour of Day')
+        plt.ylabel('Count of Hiring Bike')
+        plt.title('Counts of Bike Sharing (Hours of Day)')
+        plt.show()
     
     print('Popular Hour:{} \nTrip Count:{}'.format(popular_hour,popular_hour_trip_count))   
     print("That took %s seconds." % (time.time() - start_time))
